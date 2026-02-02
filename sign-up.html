@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join Us | Imagera-AI</title>
+    <link rel="icon" href="logo.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="notifications.css">
+    <style>
+        :root {
+            --bg-dark: #060608;
+            --accent-primary: #8a2be2;
+            --accent-secondary: #00f2fe;
+            --accent-gradient: linear-gradient(135deg, #8a2be2 0%, #00f2fe 100%);
+            --accent-purple-glow: rgba(138, 43, 226, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.1), transparent),
+                radial-gradient(circle at bottom left, rgba(0, 242, 254, 0.08), transparent);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .signup-card {
+            width: 100%;
+            max-width: 480px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(25px);
+            border: var(--glass-border);
+            border-radius: 35px;
+            padding: 3.5rem;
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-img {
+            height: 45px;
+            margin-bottom: 1rem;
+            filter: drop-shadow(0 0 10px var(--accent-purple-glow));
+        }
+
+        .logo-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.2rem;
+        }
+
+        .label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.6rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: var(--glass-border);
+            border-radius: 14px;
+            color: white;
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 1.1rem;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--accent-gradient);
+            color: white;
+            margin-top: 1.5rem;
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(138, 43, 226, 0.5);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 2.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .footer-link {
+            color: var(--accent-secondary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* --- Loader Overlay --- */
+        .loader-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(6, 6, 8, 0.95);
+            backdrop-filter: blur(20px);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .loader-spinner {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(138, 43, 226, 0.2);
+            border-top: 4px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 2rem;
+            box-shadow: 0 0 30px var(--accent-purple-glow);
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loader-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .loader-sub {
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+    </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="notifications.js"></script>
+</head>
+
+<body>
+    <div class="loader-overlay" id="signupLoader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Getting Account Ready</div>
+        <div class="loader-sub">Synthesizing your creative space...</div>
+    </div>
+
+    <div class="signup-card">
+        <div class="logo-area">
+            <a href="index.html" style="text-decoration: none;">
+                <img src="logo.png" alt="Logo" class="logo-img">
+                <div class="logo-text">IMAGERA-AI</div>
+            </a>
+            <p style="color: var(--text-secondary); margin-top: 0.5rem; font-weight: 500;">Begin your creative journey.
+            </p>
+        </div>
+
+        <form id="signupForm" class="form-grid">
+            <div>
+                <label class="label">Full Name</label>
+                <input type="text" id="name" class="input" placeholder="John Doe" required>
+            </div>
+            <div>
+                <label class="label">Email Address</label>
+                <input type="email" id="email" class="input" placeholder="john@example.com" required>
+            </div>
+            <div>
+                <label class="label">Password</label>
+                <input type="password" class="input" placeholder="••••••••" required>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" required>
+                <span>I agree to the Terms of Service and Privacy Policy</span>
+            </div>
+            <button type="submit" class="btn">Create Account</button>
+        </form>
+
+        <p class="footer-text">
+            Already have an account? <a href="login.html" class="footer-link">Log In</a>
+        </p>
+    </div>
+
+    <script>
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.querySelectorAll('input[type="password"]')[0].value;
+            const loader = document.getElementById('signupLoader');
+
+            loader.style.display = 'flex';
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Update profile with name
+                await user.updateProfile({ displayName: name });
+
+                // Store additional details in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    tier: 'Synthesist'
+                });
+
+                // Sync local state for immediate UI update
+                localStorage.setItem('imagera_user', JSON.stringify({ name, email, uid: user.uid }));
+                localStorage.removeItem('imagera_demo_mode');
+
+                window.location.href = 'generator.html';
+            } catch (error) {
+                console.error("Signup error:", error);
+                let message = "Creation failed. Please try again.";
+
+                if (error.code === 'auth/email-already-in-use') message = "Email already in use.";
+                if (error.code === 'auth/weak-password') message = "Password too weak.";
+                if (error.code === 'auth/invalid-email') message = "Invalid email address.";
+
+                showToast(message, 'error');
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>

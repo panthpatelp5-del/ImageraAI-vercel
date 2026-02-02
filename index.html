@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagera-AI | Synthesis Your Imagination</title>
+    <link rel="icon" href="logo.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="notifications.css">
+    <style>
+        :root {
+            --bg-dark: #060608;
+            --accent-primary: #8a2be2;
+            --accent-secondary: #00f2fe;
+            --accent-gradient: linear-gradient(135deg, #8a2be2 0%, #00f2fe 100%);
+            --accent-purple-glow: rgba(138, 43, 226, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --border-radius: 20px;
+            --header-height: 80px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+            border-radius: 20px;
+            border: 2px solid var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* --- Background Hero --- */
+        .hero {
+            position: relative;
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: url('hero_bg.png') no-repeat center center/cover;
+            padding: 0 2rem;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(6, 6, 8, 0.4) 0%, rgba(6, 6, 8, 0.9) 100%);
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+        }
+
+        /* --- Header --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4rem;
+            height: var(--header-height);
+            background: rgba(6, 6, 8, 0.7);
+            backdrop-filter: blur(20px);
+            border-bottom: var(--glass-border);
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
+            filter: brightness(1.2);
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+            filter: drop-shadow(0 0 10px var(--accent-purple-glow));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--text-primary);
+        }
+
+        .nav-link.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--accent-gradient);
+            box-shadow: 0 0 10px var(--accent-purple-glow);
+        }
+
+        .auth-btns {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        /* --- Hero Text --- */
+        .hero-title {
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(3.5rem, 8vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 0%, #a0a0b8 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 3vw, 1.4rem);
+            color: var(--text-secondary);
+            margin-bottom: 3.5rem;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 1.2rem 2.8rem;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 10px 30px var(--accent-purple-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 40px var(--accent-purple-glow);
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-secondary);
+        }
+
+        .btn-sm {
+            padding: 0.7rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* --- Stats Row --- */
+        .features {
+            display: flex;
+            gap: 5rem;
+            margin-top: 6rem;
+            justify-content: center;
+        }
+
+        .feature-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .feature-num {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--accent-secondary);
+        }
+
+        .feature-text {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 1024px) {
+            header {
+                padding: 0 2rem;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+            }
+        }
+
+        /* --- Benefits Showcase --- */
+        .benefits-showcase {
+            padding: 10rem 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .showcase-header {
+            margin-bottom: 6rem;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .showcase-header h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 1.5rem;
+        }
+
+        .showcase-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+        }
+
+        .benefit-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--glass-border);
+            border-radius: 40px;
+            padding: 4rem;
+            text-align: left;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--accent-primary);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            width: fit-content;
+        }
+
+        .benefit-card h3 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            font-size: 1.05rem;
+        }
+
+        .benefit-card .detail-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .detail-item i {
+            color: var(--accent-secondary);
+            margin-top: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .benefits-showcase {
+                padding: 6rem 2rem;
+            }
+        }
+
+        /* --- Showcase Slideshow --- */
+        .showcase-section {
+            padding: 8rem 0;
+            background: linear-gradient(to bottom, transparent, rgba(138, 43, 226, 0.05), transparent);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .showcase-title {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .showcase-title h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .showcase-title p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .marquee {
+            display: flex;
+            width: 100%;
+            overflow: hidden;
+            user-select: none;
+            gap: 20px;
+            padding: 2.5rem 0;
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+        }
+
+        .marquee-content {
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-around;
+            min-width: 100%;
+            gap: 20px;
+            animation: scroll 40s linear infinite;
+        }
+
+        .marquee:hover .marquee-content {
+            animation-play-state: paused;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(calc(-100% - 20px));
+            }
+        }
+
+        .showcase-img-card {
+            width: 350px;
+            height: 450px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+            border: var(--glass-border);
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .showcase-img-card:hover {
+            transform: scale(1.05);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 30px var(--accent-purple-glow);
+            z-index: 10;
+        }
+
+        .showcase-img-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+
+        .img-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 2rem;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+            opacity: 0;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .showcase-img-card:hover .img-overlay {
+            opacity: 1;
+        }
+
+        .img-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-secondary);
+            font-weight: 700;
+        }
+
+        .img-prompt {
+            font-size: 0.9rem;
+            color: white;
+            font-weight: 500;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="notifications.js"></script>
+</head>
+
+<body class="animate-fade-in">
+    <header>
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            <span>IMAGERA-AI</span>
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link active">Home</a>
+            <a href="generator.html" class="nav-link">Generator</a>
+            <a href="features.html" class="nav-link">Features</a>
+            <a href="community.html" class="nav-link">Community</a>
+        </nav>
+        <div class="auth-btns" id="authNav" style="display: flex; align-items: center; gap: 15px;">
+            <button class="btn btn-ghost btn-sm" onclick="showToast('App coming soon!', 'info')">
+                <i class="fas fa-cloud-download-alt"></i> Download App
+            </button>
+            <a href="login.html" class="btn btn-ghost btn-sm">Login</a>
+            <a href="sign-up.html" class="btn btn-primary btn-sm">Sign Up</a>
+        </div>
+    </header>
+
+    <main class="hero">
+        <div class="hero-content animate-slide-up">
+            <h1 class="hero-title">Synthesize Your <br> Imagination.</h1>
+            <p class="hero-subtitle">The next generation of AI image synthesis. Transform your wildest thoughts into
+                high-fidelity visuals with the most advanced diffusion models on the planet.</p>
+
+            <div class="hero-actions">
+                <a href="#" class="btn btn-primary" id="getStartedBtn">
+                    <i class="fas fa-bolt"></i> Get Started Free
+                </a>
+                <button class="btn btn-ghost" id="demoBtn" style="margin-left: 1.5rem;">
+                    <i class="fas fa-play"></i> Try Demo
+                </button>
+            </div>
+
+            <div class="features">
+                <div class="feature-item">
+                    <span class="feature-num">100+</span>
+                    <span class="feature-text">Images/day</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-num">3.2s</span>
+                    <span class="feature-text">Av.Time</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-num">97.75%</span>
+                    <span class="feature-text">Accurate</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <section class="showcase-section">
+        <div class="showcase-title animate-slide-up">
+            <h2>Famous Masterpieces</h2>
+            <p>Explore breathtaking visuals synthesized by the Imagera-AI community.</p>
+        </div>
+
+        <div class="marquee">
+            <div class="marquee-content">
+                <!-- Image 1 -->
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase1.png" alt="Mystical Forest"
+                        onerror="this.src='https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Fantasy</span>
+                        <p class="img-prompt">Ancient ruins in a mystical forest with glowing mushrooms, full moon
+                            night, 8k</p>
+                    </div>
+                </div>
+                <!-- Image 2 -->
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase2.png" alt="Magical Warrior"
+                        onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Character</span>
+                        <p class="img-prompt">A warrior in a city with glowing magical armor, holding a sword, cinematic
+                            lighting</p>
+                    </div>
+                </div>
+                <!-- Image 3 -->
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase3.png" alt="Modern Villa"
+                        onerror="this.src='https://images.unsplash.com/photo-1620712943543-bcc4628c6750?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Architecture</span>
+                        <p class="img-prompt">Modern glass villa with waterfall and pool, lush jungle setting, sunset
+                            glow</p>
+                    </div>
+                </div>
+                <!-- Image 4 -->
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase4.png" alt="Snowy Mountains"
+                        onerror="this.src='https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Nature</span>
+                        <p class="img-prompt">Snowy mountain range, aerial view, blue sky and scattered clouds,
+                            hyper-detailed</p>
+                    </div>
+                </div>
+                <!-- Image 5 -->
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase5.png" alt="Cute Robot"
+                        onerror="this.src='https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Sci-Fi</span>
+                        <p class="img-prompt">Ultra-realistic 3D render of a cute robot in a toy store, vibrant colors,
+                            bokeh</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Duplicate for infinite effect -->
+            <div class="marquee-content" aria-hidden="true">
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase1.png" alt="Mystical Forest"
+                        onerror="this.src='https://images.unsplash.com/photo-1614728263952-84ea256f9679?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Fantasy</span>
+                        <p class="img-prompt">Ancient ruins in a mystical forest with glowing mushrooms, full moon
+                            night, 8k</p>
+                    </div>
+                </div>
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase2.png" alt="Magical Warrior"
+                        onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Character</span>
+                        <p class="img-prompt">A warrior in a city with glowing magical armor, holding a sword, cinematic
+                            lighting</p>
+                    </div>
+                </div>
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase3.png" alt="Modern Villa"
+                        onerror="this.src='https://images.unsplash.com/photo-1620712943543-bcc4628c6750?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Architecture</span>
+                        <p class="img-prompt">Modern glass villa with waterfall and pool, lush jungle setting, sunset
+                            glow</p>
+                    </div>
+                </div>
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase4.png" alt="Snowy Mountains"
+                        onerror="this.src='https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Nature</span>
+                        <p class="img-prompt">Snowy mountain range, aerial view, blue sky and scattered clouds,
+                            hyper-detailed</p>
+                    </div>
+                </div>
+                <div class="showcase-img-card">
+                    <img src="imgs/showcase5.png" alt="Cute Robot"
+                        onerror="this.src='https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=800'">
+                    <div class="img-overlay">
+                        <span class="img-tag">Sci-Fi</span>
+                        <p class="img-prompt">Ultra-realistic 3D render of a cute robot in a toy store, vibrant colors,
+                            bokeh</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits-showcase">
+        <div class="showcase-header">
+            <h2>The Architecture of Creation</h2>
+            <p>Imagera AI isn't just a generator; it's a high-performance ecosystem designed to bridge the gap between
+                raw imagination and studio-grade visual assets.</p>
+        </div>
+
+        <div class="benefits-grid">
+            <!-- Benefit 1 -->
+            <div class="benefit-card animate-slide-up" style="animation-delay: 0.1s;">
+                <div class="benefit-icon"><i class="fas fa-microchip"></i></div>
+                <h3>Hyper-Performance Engine</h3>
+                <p>Built on the backbone of Cloudflare's global GPU infrastructure, Imagera AI delivers sub-second
+                    synthesis that leaves traditional clusters in the dust. Every byte of our pipeline is optimized for
+                    parallelized diffusion.</p>
+                <ul class="detail-list">
+                    <li class="detail-item"><i class="fas fa-bolt"></i> Instant Latency Optimization</li>
+                    <li class="detail-item"><i class="fas fa-dna"></i> Tensor-Core Acceleration</li>
+                    <li class="detail-item"><i class="fas fa-network-wired"></i> Global Edge Distribution</li>
+                </ul>
+            </div>
+
+            <!-- Benefit 2 -->
+            <div class="benefit-card animate-slide-up" style="animation-delay: 0.2s;">
+                <div class="benefit-icon"><i class="fas fa-shield-halved"></i></div>
+                <h3>Enterprise Security & Sync</h3>
+                <p>Your creative assets are your intellectual property. Our Firebase-backed infrastructure ensures that
+                    every pixel is encrypted, synced, and accessible only to you across all your professional
+                    workstations.</p>
+                <ul class="detail-list">
+                    <li class="detail-item"><i class="fas fa-lock"></i> AES-256 Cloud Encryption</li>
+                    <li class="detail-item"><i class="fas fa-cloud-arrow-up"></i> Real-time Firestore Sync</li>
+                    <li class="detail-item"><i class="fas fa-user-shield"></i> Advanced Auth Protocols</li>
+                </ul>
+            </div>
+
+            <!-- Benefit 3 -->
+            <div class="benefit-card animate-slide-up" style="animation-delay: 0.3s;">
+                <div class="benefit-icon"><i class="fas fa-palette"></i></div>
+                <h3>Creative Sovereignty</h3>
+                <p>Break free from the constraints of generic aspect ratios and simplified controls. We give you full
+                    control over CFG scales, negative prompting, and seed manipulation for precise creative direction.
+                </p>
+                <ul class="detail-list">
+                    <li class="detail-item"><i class="fas fa-vector-square"></i> Infinite Aspect Scalability</li>
+                    <li class="detail-item"><i class="fas fa-sliders-h"></i> Granular Parameter Control</li>
+                    <li class="detail-item"><i class="fas fa-magic"></i> AI Prompt Synthesis V2</li>
+                </ul>
+            </div>
+
+            <!-- Benefit 4 -->
+            <div class="benefit-card animate-slide-up" style="animation-delay: 0.4s;">
+                <div class="benefit-icon"><i class="fas fa-layer-group"></i></div>
+                <h3>Next-Gen Model Node</h3>
+                <p>Stop settling for yesterday's diffusion. Our node supports the latest breakthrough architectures
+                    including FLUX.1 for hyper-speed and Leonardo Phoenix for unmatched prompt coherence and text
+                    rendering.</p>
+                <ul class="detail-list">
+                    <li class="detail-item"><i class="fas fa-expand"></i> Ultra-HD Upscaling Support</li>
+                    <li class="detail-item"><i class="fas fa-font"></i> Perfect Text Rendering</li>
+                    <li class="detail-item"><i class="fas fa-image"></i> Multi-Style Synthesis</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const authNav = document.getElementById('authNav');
+            const getStartedBtn = document.getElementById('getStartedBtn');
+            const demoBtn = document.getElementById('demoBtn');
+
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    authNav.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-weight: 600; color: var(--text-secondary);">Hi, ${user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
+                            <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 700;">${user.displayName ? user.displayName.charAt(0) : 'U'}</div>
+                            <button class="btn btn-ghost btn-sm" onclick="logout()" title="Logout" style="width: auto; padding: 0.5rem; display: flex; align-items: center; justify-content: center; opacity: 0.6;"><i class="fas fa-sign-out-alt"></i></button>
+                        </div>
+                    `;
+                    getStartedBtn.onclick = (e) => {
+                        e.preventDefault();
+                        window.location.href = 'generator.html';
+                    };
+                } else {
+                    getStartedBtn.onclick = (e) => {
+                        e.preventDefault();
+                        window.location.href = 'sign-up.html';
+                    };
+                }
+            });
+
+            demoBtn.onclick = (e) => {
+                e.preventDefault();
+                if (!auth.currentUser) {
+                    localStorage.setItem('imagera_demo_mode', 'true');
+                    localStorage.setItem('demo_images_generated', '0');
+                }
+                window.location.href = 'generator.html';
+            };
+        });
+
+        async function logout() {
+            showConfirm('Logout of Imagera AI?', async () => {
+                await auth.signOut();
+                localStorage.removeItem('imagera_user');
+                localStorage.removeItem('imagera_demo_mode');
+                window.location.href = 'index.html';
+            });
+        }
+    </script>
+</body>
+
+</html>

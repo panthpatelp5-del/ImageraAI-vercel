@@ -1,0 +1,2591 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imagera-AI | Cloudflare AI Image Generator</title>
+    <link rel="icon" href="logo.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="notifications.css">
+    <style>
+        :root {
+            --bg-dark: #060608;
+            --bg-card: rgba(22, 22, 26, 0.7);
+            --bg-card-light: rgba(30, 30, 36, 0.8);
+            --accent-primary: #8a2be2;
+            --accent-secondary: #00f2fe;
+            --accent-gradient: linear-gradient(135deg, #8a2be2 0%, #00f2fe 100%);
+            --accent-purple-glow: rgba(138, 43, 226, 0.4);
+            --accent-cyan-glow: rgba(0, 242, 254, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --text-muted: #626274;
+            --success: #00ffcc;
+            --warning: #ffcc00;
+            --danger: #ff5e62;
+            --border-radius: 20px;
+            --border-radius-sm: 12px;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --header-height: 80px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+            border-radius: 20px;
+            border: 2px solid var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* --- Custom Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+            border-radius: 20px;
+            border: 2px solid var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-secondary);
+        }
+
+        /* --- Animations --- */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .animate-slide-up {
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-slide-left {
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .animate-slide-right {
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .delay-1 {
+            animation-delay: 0.1s;
+            opacity: 0;
+        }
+
+        .delay-2 {
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        .delay-3 {
+            animation-delay: 0.3s;
+            opacity: 0;
+        }
+
+        .delay-4 {
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+
+        .delay-5 {
+            animation-delay: 0.5s;
+            opacity: 0;
+        }
+
+        /* --- Background Effects --- */
+        .bg-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .grid-lines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(to right, rgba(138, 43, 226, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(138, 43, 226, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            animation: pulse 10s infinite alternate;
+        }
+
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background-color: var(--accent-primary);
+            top: -100px;
+            left: -100px;
+        }
+
+        .shape-2 {
+            width: 500px;
+            height: 500px;
+            background-color: var(--accent-secondary);
+            bottom: -150px;
+            right: -150px;
+            animation-delay: -5s;
+        }
+
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+                opacity: 0.15;
+            }
+
+            to {
+                transform: scale(1.2);
+                opacity: 0.25;
+            }
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 3rem;
+            height: var(--header-height);
+            border-bottom: var(--glass-border);
+            background-color: rgba(6, 6, 8, 0.85);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 2rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .logo:hover {
+            transform: scale(1.02);
+        }
+
+        .logo-img {
+            height: 40px;
+            width: auto;
+            filter: drop-shadow(0 0 10px var(--accent-purple-glow));
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            display: flex;
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        /* --- Sidebar & Controls --- */
+        .sidebar {
+            width: 340px;
+            padding: 2.5rem 1.8rem 4rem 1.8rem;
+            border-right: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+            background-color: rgba(10, 10, 14, 0.82);
+            /* Darker for better contrast */
+            backdrop-filter: blur(15px);
+            overflow-y: auto;
+            height: calc(100vh - 80px);
+            /* Explicit height for sticky/scroll */
+            position: sticky;
+            top: 80px;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-primary) transparent;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--glass-bg);
+            border-radius: 10px;
+        }
+
+        .sidebar-section {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .section-title {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--accent-secondary);
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .option-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .style-presets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .style-preset {
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--glass-border);
+            border-radius: 12px;
+            padding: 1.2rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .style-preset:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: var(--accent-secondary);
+        }
+
+        .style-preset.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            box-shadow: 0 5px 15px var(--accent-purple-glow);
+        }
+
+        .style-preset.active i,
+        .style-preset.active div {
+            color: white !important;
+        }
+
+        .aspect-ratios {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .aspect-ratio {
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: var(--glass-border);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .aspect-ratio:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-3px);
+            border-color: var(--accent-secondary);
+        }
+
+        .aspect-ratio.active {
+            background: var(--accent-gradient);
+            border-color: transparent;
+            color: white;
+        }
+
+        .api-input,
+        .model-select {
+            width: 100%;
+            padding: 0.9rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: var(--glass-border);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .api-input:hover,
+        .model-select:hover {
+            border-color: rgba(138, 43, 226, 0.5);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .api-input:focus {
+            border-color: var(--accent-primary);
+            outline: none;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            gap: 3.5rem;
+            background: radial-gradient(circle at top right, rgba(138, 43, 226, 0.05) 0%, transparent 60%);
+        }
+
+        .creation-hub {
+            background: var(--glass-bg);
+            border-radius: 28px;
+            padding: 3.5rem;
+            border: var(--glass-border);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .workspace-title {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .workspace-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .prompt-wrapper {
+            position: relative;
+            margin: 2.5rem 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .prompt-wrapper:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 50px var(--accent-purple-glow);
+            transform: translateY(-2px);
+        }
+
+        .prompt-input {
+            width: 100%;
+            padding: 2.5rem;
+            padding-bottom: 6rem;
+            /* Enhanced space for overlay actions */
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.35rem;
+            /* Slightly larger font for better visibility */
+            line-height: 1.8;
+            min-height: 400px;
+            /* Doubled from 200px */
+            resize: vertical;
+            /* Enable manual expansion */
+            transition: var(--transition);
+            font-family: inherit;
+        }
+
+        .prompt-input:focus {
+            outline: none;
+        }
+
+        .prompt-overlay-actions {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            left: 16px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            padding: 10px 16px;
+            background: rgba(10, 10, 15, 0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            pointer-events: none;
+            /* Let clicks pass to textarea if not on buttons */
+        }
+
+        .prompt-overlay-actions>* {
+            pointer-events: auto;
+            /* Re-enable for buttons and indicator */
+        }
+
+        .prompt-overlay-actions .btn {
+            padding: 0.8rem 1.6rem;
+            font-size: 0.85rem;
+            border-radius: 12px;
+            height: 42px;
+        }
+
+        .prompt-overlay-actions .btn-primary {
+            box-shadow: 0 5px 15px var(--accent-purple-glow);
+        }
+
+        .queue-badge {
+            display: none;
+            background: var(--accent-secondary);
+            color: var(--bg-dark);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            animation: pulse-glow 1s infinite alternate;
+            margin-right: auto;
+        }
+
+        @keyframes pulse-glow {
+            from {
+                box-shadow: 0 0 5px var(--accent-secondary);
+                opacity: 0.8;
+            }
+
+            to {
+                box-shadow: 0 0 15px var(--accent-secondary);
+                opacity: 1;
+            }
+        }
+
+        .template-chips {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .template-chip {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .template-chip:hover {
+            background: var(--accent-gradient);
+            color: white;
+            border-color: transparent;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px var(--accent-purple-glow);
+        }
+
+        /* --- Preview Stage --- */
+        .generation-stage {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 28px;
+            padding: 3rem;
+            border: 2px solid var(--accent-primary);
+            box-shadow: 0 0 120px rgba(138, 43, 226, 0.2);
+            animation: slideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .stage-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .stage-canvas {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2.5rem;
+        }
+
+        .stage-canvas img {
+            max-width: 100%;
+            max-height: 75vh;
+            border-radius: 24px;
+            box-shadow: 0 0 70px var(--accent-purple-glow);
+            border: var(--glass-border);
+        }
+
+        .stage-info {
+            text-align: center;
+            max-width: 800px;
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 1.1rem;
+        }
+
+        /* --- Results Grid --- */
+        .results-section {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .results-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .image-card {
+            border-radius: 24px;
+            background: var(--bg-card);
+            border: var(--glass-border);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .image-card:hover {
+            transform: translateY(-12px);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+        }
+
+        .image-placeholder {
+            height: 320px;
+            overflow: hidden;
+            background: rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: zoom-in;
+            transition: var(--transition);
+        }
+
+        .image-placeholder:hover {
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .generated-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .image-card:hover .generated-image {
+            transform: scale(1.05);
+        }
+
+        .image-info {
+            padding: 1.2rem;
+            background: rgba(10, 10, 14, 0.4);
+            border-top: var(--glass-border);
+            backdrop-filter: blur(5px);
+        }
+
+        .image-prompt {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 0.6rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .image-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: flex;
+            justify-content: space-between;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 1.2rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: var(--transition);
+        }
+
+        .image-card:hover .image-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- Utility & Stats --- */
+        .generation-stats-sidebar {
+            background: var(--glass-bg);
+            border-radius: 20px;
+            padding: 1.8rem;
+            border: var(--glass-border);
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+
+        .stat-sidebar-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-num {
+            font-weight: 800;
+            color: var(--accent-secondary);
+            font-size: 1.1rem;
+        }
+
+        .stat-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--accent-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        .stat-badge:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            border-color: var(--accent-secondary);
+        }
+
+        /* --- Lightbox --- */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            cursor: zoom-out;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .lightbox-content {
+            position: relative;
+            max-width: 95%;
+            max-height: 95%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            cursor: default;
+        }
+
+        .lightbox-image {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 12px;
+            box-shadow: 0 0 100px rgba(138, 43, 226, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lightbox-info {
+            color: white;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: scale 0.2s;
+        }
+
+        .lightbox-close:hover {
+            scale: 1.2;
+        }
+
+        @media (max-width: 768px) {
+            .lightbox {
+                padding: 20px;
+            }
+
+            .lightbox-close {
+                top: 10px;
+                right: 10px;
+            }
+        }
+
+        /* --- Buttons --- */
+        .btn {
+            padding: 1.2rem 2.5rem;
+            border-radius: 16px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            letter-spacing: 0.5px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 15px 35px var(--accent-purple-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 20px 45px var(--accent-purple-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.3 !important;
+            pointer-events: none !important;
+            filter: grayscale(0.9) !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .icon-btn:disabled {
+            opacity: 0.2 !important;
+            pointer-events: none !important;
+            cursor: not-allowed !important;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: white;
+            border: var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-secondary);
+        }
+
+        .btn-sm {
+            padding: 0.7rem 1.4rem;
+            font-size: 0.85rem;
+            border-radius: 12px;
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            border: var(--glass-border);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            backdrop-filter: blur(10px);
+        }
+
+        .icon-btn:hover {
+            background: var(--accent-gradient);
+            transform: scale(1.15) translateY(-2px);
+            box-shadow: 0 8px 20px var(--accent-purple-glow);
+            border-color: transparent;
+        }
+
+        .icon-btn.delete-btn:hover {
+            background: var(--danger);
+            box-shadow: 0 8px 20px rgba(255, 94, 98, 0.4);
+        }
+
+        .range-input {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-top: var(--glass-border);
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .spinner {
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* --- Skeleton & Shimmer --- */
+        .skeleton {
+            background: linear-gradient(90deg,
+                    rgba(255, 255, 255, 0.03) 25%,
+                    rgba(255, 255, 255, 0.08) 50%,
+                    rgba(255, 255, 255, 0.03) 75%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite linear;
+            border-radius: 12px;
+        }
+
+        @keyframes shimmer {
+            from {
+                background-position: 200% 0;
+            }
+
+            to {
+                background-position: -200% 0;
+            }
+        }
+
+        .stage-canvas.is-loading {
+            width: 100%;
+            height: 500px;
+            max-height: 75vh;
+            border-radius: 24px;
+            border: 1px dashed rgba(138, 43, 226, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .loading-text {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 1.2rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .image-card.is-loading .image-placeholder {
+            background: rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-card.is-loading .image-placeholder::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+
+        .fade-in {
+            animation: fadeInImage 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes fadeInImage {
+            from {
+                opacity: 0;
+                transform: scale(0.98);
+                filter: blur(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+                filter: blur(0);
+            }
+        }
+
+        .stage-image-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
+        }
+
+        /* --- Dual Phase Loaders --- */
+        .loader-fetching {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .loader-processing {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .processing-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--accent-secondary);
+            border-bottom-color: var(--accent-primary);
+            animation: spin 1s infinite linear, glowPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                filter: drop-shadow(0 0 5px var(--accent-purple-glow));
+                transform: scale(1);
+            }
+
+            50% {
+                filter: drop-shadow(0 0 20px var(--accent-purple-glow));
+                transform: scale(1.1);
+            }
+        }
+
+        .processing-text {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .loader-percentage,
+        .loader-percentage-sim {
+            margin-top: 5px;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 900;
+            font-size: 1.6rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 15px rgba(0, 210, 255, 0.5);
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            animation: percentagePulse 2s infinite ease-in-out;
+        }
+
+        @keyframes percentagePulse {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 0.9;
+            }
+
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        .processing-ring-container {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+            /* Increased margin for better balance */
+        }
+
+        .processing-ring {
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(108, 92, 231, 0.1);
+            border-top: 3px solid var(--accent-secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 10px var(--accent-purple-glow));
+        }
+
+        @media (max-width: 1100px) {
+            .sidebar {
+                width: 300px;
+            }
+
+            .main-content {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                max-height: none;
+                border-right: none;
+                border-bottom: var(--glass-border);
+            }
+        }
+    </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="notifications.js"></script>
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <div class="bg-effects">
+        <div class="grid-lines"></div>
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <!-- Top Navigation -->
+    <header class="animate-fade-in">
+        <div class="logo">
+            <img src="logo.png" alt="Imagera-AI Logo" class="logo-img">
+            <span>IMAGERA-AI</span>
+        </div>
+
+        <nav class="nav-links" style="display: flex; gap: 2rem; margin-right: 2rem;">
+            <a href="index.html"
+                style="text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">Home</a>
+            <a href="generator.html"
+                style="text-decoration: none; color: var(--text-primary); font-weight: 700; font-size: 0.9rem; position: relative;">
+                Generator
+                <span
+                    style="position: absolute; bottom: -8px; left: 0; width: 100%; height: 2px; background: var(--accent-gradient);"></span>
+            </a>
+            <a href="features.html"
+                style="text-decoration: none; color: var(--text-secondary); font-weight: 600; font-size: 0.9rem;">Features</a>
+        </nav>
+
+        <div class="nav-right" style="display: flex; align-items: center; gap: 15px;">
+            <button class="btn btn-secondary btn-sm" onclick="showToast('App coming soon!', 'info')">
+                <i class="fas fa-cloud-download-alt"></i> Download App
+            </button>
+            <button class="icon-btn" onclick="window.location.href='community.html'" title="Community">
+                <i class="fas fa-users"></i>
+            </button>
+            <div class="user-info" id="userInfo">
+                <div class="avatar">AN</div>
+                <span>Guest User</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="showHistory()">
+                <i class="fas fa-clock-rotate-left"></i> History
+            </button>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Control Sidebar -->
+        <aside class="sidebar animate-slide-left delay-1">
+            <div class="sidebar-section">
+                <h3 class="section-title"><i class="fas fa-robot"></i> Engine Settings</h3>
+                <div class="option-group">
+                    <label class="option-label">AI Model</label>
+                    <select class="model-select" id="aiModel">
+                        <option value="@cf/black-forest-labs/flux-1-schnell">FLUX.1 Turbo (Ultra HD & Fast)</option>
+                        <option value="@cf/bytedance/stable-diffusion-xl-lightning">SDXL Blitz (Hyper-Fast)</option>
+                        <option value="@cf/stabilityai/stable-diffusion-xl-base-1.0">SDXL Studio (Highest Quality)
+                        </option>
+                        <option value="@cf/lykon/dreamshaper-8-lcm">DreamShaper Pro (Cinematic)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title"><i class="fas fa-palette"></i> Creative Style</h3>
+                <div class="option-group">
+                    <div class="style-presets">
+                        <div class="style-preset active" onclick="selectStyle('realistic', event)">
+                            <i class="fas fa-camera style-icon"></i>
+                            <div>Realistic</div>
+                        </div>
+                        <div class="style-preset" onclick="selectStyle('anime', event)">
+                            <i class="fas fa-user-ninja style-icon"></i>
+                            <div>Anime</div>
+                        </div>
+                        <div class="style-preset" onclick="selectStyle('digital', event)">
+                            <i class="fas fa-paint-brush style-icon"></i>
+                            <div>Digital Art</div>
+                        </div>
+                        <div class="style-preset" onclick="selectStyle('3d', event)">
+                            <i class="fas fa-cube style-icon"></i>
+                            <div>3D Render</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title"><i class="fas fa-vector-square"></i> Canvas Properties</h3>
+                <div class="option-group">
+                    <div class="aspect-ratios">
+                        <div class="aspect-ratio active" onclick="selectAspectRatio('1:1', event)">1:1 Square</div>
+                        <div class="aspect-ratio" onclick="selectAspectRatio('2:3', event)">2:3 Portrait</div>
+                        <div class="aspect-ratio" onclick="selectAspectRatio('16:9', event)">16:9 Cinema</div>
+                        <div class="aspect-ratio" onclick="selectAspectRatio('21:9', event)">21:9 Ultra</div>
+                    </div>
+                </div>
+
+                <div class="option-group">
+                    <label class="option-label">Batch Size</label>
+                    <div class="aspect-ratios" id="batchSelect">
+                        <div class="aspect-ratio active" onclick="selectBatch(1, event)">1</div>
+                        <div class="aspect-ratio" onclick="selectBatch(2, event)">2</div>
+                        <div class="aspect-ratio" onclick="selectBatch(4, event)">4</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+                    <h3 class="section-title" style="margin-bottom: 0;"><i class="fas fa-sliders"></i> Parameters</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="resetParameters()" title="Reset to Defaults"
+                        style="padding: 0.4rem 0.8rem; height: auto; text-transform: none; font-size: 0.75rem;">
+                        <i class="fas fa-undo"></i> Reset
+                    </button>
+                </div>
+
+                <div class="option-group">
+                    <label class="option-label">Creativity (CFG): <span id="cfgValue">7.0</span></label>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                        Lower = more creative. Higher = follows prompt exactly.
+                    </p>
+                    <input type="range" id="cfgScale" min="1" max="20" value="7" step="0.5" class="range-input">
+                </div>
+
+                <div class="option-group">
+                    <label class="option-label">Negative Prompt (SDXL)</label>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem;">
+                        Things to EXCLUDE (like "blurry", "text"). Works best with SDXL models.
+                    </p>
+                    <textarea id="negativePrompt" class="api-input"
+                        placeholder="e.g. blurry, low quality, distorted..."></textarea>
+                </div>
+
+                <div class="option-group">
+                    <label class="option-label">
+                        Custom Seed (4+ Digits)
+                        <div style="display: flex; gap: 8px; margin-left: auto;">
+                            <button class="icon-btn" onclick="randomizeSeed()" title="Randomize Seed"
+                                style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                <i class="fas fa-dice"></i>
+                            </button>
+                            <button class="icon-btn" id="seedGenerateBtn" onclick="generateImage(true)"
+                                title="Generate with this Seed"
+                                style="width: 24px; height: 24px; font-size: 0.7rem; color: var(--accent-secondary); border-color: var(--accent-secondary);">
+                                <i class="fas fa-play"></i>
+                            </button>
+                        </div>
+                    </label>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0px;">
+                        Use the same number to get the same image result again.
+                    </p>
+                    <input type="number" id="seedInput" class="api-input" placeholder="Random (e.g. 123456)">
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title"><i class="fas fa-chart-line"></i> Statistics</h3>
+                <div class="generation-stats-sidebar">
+                    <div class="stat-sidebar-item">
+                        <span>Total Assets</span>
+                        <span class="stat-num" id="totalImages">0</span>
+                    </div>
+                    <div class="stat-sidebar-item">
+                        <span>Pinned</span>
+                        <span class="stat-num" id="savedImages">0</span>
+                    </div>
+                    <div class="stat-sidebar-item">
+                        <span>Avg. Latency</span>
+                        <span class="stat-num" id="avgTime">2.3s</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Focused Header & Input -->
+            <section class="creation-hub animate-slide-up delay-2">
+                <div class="workspace-header"
+                    style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 20px;">
+                    <div>
+                        <h1 class="workspace-title">Creation Workspace</h1>
+                        <p class="workspace-subtitle">Synthesize stunning visuals from text with high-performance
+                            Cloudflare AI.</p>
+                    </div>
+                    <div style="display: flex; gap: 15px; margin-bottom: 5px;">
+                        <div class="stat-badge">
+                            <i class="fas fa-microchip"></i> <span id="avgTimeHeader">2.3s</span>
+                        </div>
+                        <div class="stat-badge">
+                            <i class="fas fa-layer-group"></i> <span id="totalImagesHeader">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prompt-wrapper">
+                    <textarea id="mainPrompt" class="prompt-input"
+                        placeholder="Futuristic game interface with holographic elements, neon blue and purple color scheme, cyberpunk aesthetic, clean UI design, digital art, 4k"></textarea>
+
+                    <div class="prompt-overlay-actions">
+                        <div id="queueIndicator" class="queue-badge">
+                            <span id="queueCount">0</span> WAITING
+                        </div>
+                        <button class="icon-btn" onclick="applyRandomPrompt()" title="Magic Prompt"
+                            style="background: rgba(108, 92, 231, 0.15); color: var(--accent-secondary); border: 1px solid rgba(108, 92, 231, 0.3); width: 42px; height: 42px; border-radius: 12px; font-size: 1rem;">
+                            <i class="fas fa-magic"></i>
+                        </button>
+                        <button class="btn btn-secondary" id="enhanceBtn" onclick="enhancePrompt()">
+                            <i class="fas fa-wand-magic-sparkles"></i> Enhance
+                        </button>
+                        <button class="btn btn-primary" id="generateBtn" onclick="generateImage()">
+                            <i class="fas fa-bolt"></i> Generate
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-tools">
+                    <div class="template-chips">
+                        <div class="template-chip" onclick="loadTemplate('game ui concept', event)"><i
+                                class="fas fa-desktop"></i> Game UI</div>
+                        <div class="template-chip" onclick="loadTemplate('fantasy character', event)"><i
+                                class="fas fa-user-shield"></i> Character</div>
+                        <div class="template-chip" onclick="loadTemplate('environment art', event)"><i
+                                class="fas fa-mountain"></i> Environment</div>
+                        <div class="template-chip" onclick="loadTemplate('logo design', event)"><i
+                                class="fas fa-pen-nib"></i>
+                            Logo</div>
+                        <div class="template-chip" onclick="loadTemplate('wallpaper', event)"><i
+                                class="fas fa-image"></i>
+                            Wallpaper</div>
+                        <div class="template-chip" onclick="loadTemplate('3d render', event)"><i
+                                class="fas fa-cube"></i>
+                            3D Render</div>
+                        <div class="template-chip" onclick="loadTemplate('architecture', event)"><i
+                                class="fas fa-building"></i>
+                            Architecture</div>
+                        <div class="template-chip" onclick="loadTemplate('cybernetic', event)"><i
+                                class="fas fa-microchip"></i>
+                            Cybernetic</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Prominent Generation Preview -->
+            <section class="generation-stage" id="generationStage" style="display: none;">
+                <div class="stage-header">
+                    <h3 class="section-title"><i class="fas fa-sparkles"></i> Latest Generation</h3>
+                    <div class="stage-actions">
+                        <button class="icon-btn" onclick="saveStageImage()" title="Save to Pinned"><i
+                                class="fas fa-heart"></i></button>
+                        <button class="icon-btn" onclick="downloadStageImage()" title="Download PNG"><i
+                                class="fas fa-download"></i></button>
+                        <button class="icon-btn" onclick="closeStage()" title="Dismiss"><i
+                                class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <div class="stage-canvas">
+                    <img id="stageImage" src="" alt="Result">
+                    <div class="stage-info">
+                        <p id="stagePrompt"></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Feed -->
+            <section class="results-section animate-slide-up delay-3">
+                <div class="results-header">
+                    <h2 class="results-title"><i class="fas fa-layer-group"></i> Recent Assets</h2>
+                    <div class="results-actions">
+                        <button class="btn btn-secondary btn-sm" onclick="exportHistory()">
+                            <i class="fas fa-download"></i> Export
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="clearMemory()">
+                            <i class="fas fa-trash"></i> Reset
+                        </button>
+                    </div>
+                </div>
+
+                <div class="image-grid" id="imageGrid">
+                    <!-- History assets populated via JS -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Lightbox Modal -->
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <button class="lightbox-close" onclick="event.stopPropagation(); closeLightbox()">&times;</button>
+        <div class="lightbox-content" onclick="event.stopPropagation()">
+            <img id="lightboxImg" src="" alt="Full view" class="lightbox-image">
+            <div class="lightbox-info">
+                <p id="lightboxPrompt" style="font-style: italic; opacity: 0.8;"></p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="animate-fade-in delay-5">
+        <p>Imagera-AI © 2026 | Enterprise-grade AI Image Synthesis | Powered by Cloudflare Workers</p>
+    </footer>
+
+    <script>
+        // For Render.com deployment: Replace the URL below with your Render link once you have it!
+        // Example: const BACKEND_URL = 'https://imagera-ai.onrender.com';
+        const BACKEND_URL = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
+            ? 'http://127.0.0.1:3000'
+            : 'https://imagera-ai.onrender.com'; // <--- Update this link after deploying to Render!
+
+        const STYLE_PRESETS = {
+            realistic: "photorealistic, ultra detailed, DSLR, 8k, high definition",
+            anime: "anime style, studio ghibli, cel shading, vibrant colors, detailed illustration",
+            digital: "digital art, concept art, trending on artstation, sharp focus, vivid colors",
+            '3d': "3d render, octane render, unreal engine 5, raytracing, soft lighting"
+        };
+
+        const NEGATIVE_PROMPT_DEFAULT = "blurry, low quality, deformed hands, extra fingers, watermark, text, out of frame, low resolution, grain, ugly";
+
+        // State management
+        let currentModel = localStorage.getItem('cf_model') || '@cf/black-forest-labs/flux-1-schnell';
+        let currentStyle = 'realistic';
+        let currentAspectRatio = '1:1';
+        let currentBatchSize = 1;
+        let isGenerating = false;
+        let isSeedLocked = false;
+        let abortController = null;
+        let totalGenerations = parseInt(localStorage.getItem('totalGenerations') || '0');
+        let savedImages = JSON.parse(localStorage.getItem('savedImages') || '[]');
+        let generationHistory = JSON.parse(localStorage.getItem('generationHistory') || '[]');
+
+        const ASPECT_RATIO_MAP = {
+            '1:1': { width: 1024, height: 1024 },
+            '2:3': { width: 832, height: 1248 },
+            '16:9': { width: 1216, height: 688 }, // Height must be divisible by 8 (684 / 8 was failing)
+            '21:9': { width: 1344, height: 576 }
+        };
+
+        // Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            auth.onAuthStateChanged(async (user) => {
+                const userInfo = document.getElementById('userInfo');
+                if (user) {
+                    userInfo.innerHTML = `
+                        <div class="avatar">${user.displayName ? user.displayName.charAt(0) : 'U'}</div>
+                        <span>${user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
+                    `;
+                    await loadFirestoreHistory(user.uid);
+                } else {
+                    userInfo.innerHTML = `
+                        <div class="avatar" style="background: var(--text-muted);"><i class="fas fa-user-secret"></i></div>
+                        <span>Demo Guest</span>
+                    `;
+                    generationHistory.forEach(item => {
+                        addImageToGrid(item.prompt, item.url, item.style, item.aspect, item.metadata, true);
+                    });
+                }
+
+                document.getElementById('aiModel').value = currentModel;
+                updateStats();
+                setupControls();
+                checkBackendConnection();
+            });
+        });
+
+        async function checkBackendConnection() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                if (response.ok) {
+                    console.log('Backend connected successfully');
+                } else {
+                    console.warn('Backend returned status:', response.status);
+                    showToast('Backend server is unreachable. Please run "node server.js"', 'warning');
+                }
+            } catch (err) {
+                console.error('Backend connection error:', err);
+                showToast('Cannot connect to backend server. Make sure "node server.js" is running.', 'error');
+            }
+        }
+
+        function setupControls() {
+            const cfgSlider = document.getElementById('cfgScale');
+            const cfgValue = document.getElementById('cfgValue');
+            cfgSlider.oninput = () => cfgValue.textContent = parseFloat(cfgSlider.value).toFixed(1);
+
+            document.getElementById('aiModel').onchange = (e) => {
+                currentModel = e.target.value;
+                localStorage.setItem('cf_model', currentModel);
+            };
+        }
+
+        function resetParameters() {
+            document.getElementById('cfgScale').value = 7.0;
+            document.getElementById('cfgValue').textContent = '7.0';
+            document.getElementById('negativePrompt').value = '';
+            document.getElementById('seedInput').value = '';
+            isSeedLocked = false;
+            updateSeedUI();
+        }
+
+        function selectStyle(style, event) {
+            currentStyle = style;
+            document.querySelectorAll('.style-preset').forEach(p => p.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                document.querySelectorAll('.style-preset').forEach(p => {
+                    if (p.textContent.trim().toLowerCase() === style.toLowerCase()) p.classList.add('active');
+                });
+            }
+        }
+
+        function selectAspectRatio(ratio, event) {
+            currentAspectRatio = ratio;
+            document.querySelectorAll('.aspect-ratio').forEach(p => p.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                document.querySelectorAll('.aspect-ratio').forEach(p => {
+                    const text = p.textContent.trim();
+                    if (text === ratio || text.startsWith(ratio)) p.classList.add('active');
+                });
+            }
+        }
+
+        function selectBatch(size, event) {
+            currentBatchSize = size;
+            document.querySelectorAll('#batchSelect .aspect-ratio').forEach(p => p.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            } else {
+                document.querySelectorAll('#batchSelect .aspect-ratio').forEach(p => {
+                    if (p.textContent.trim() === size.toString()) p.classList.add('active');
+                });
+            }
+        }
+
+        function randomizeSeed() {
+            // Ensure at least 4 digits for professional appearance
+            const randomSeed = 1000 + Math.floor(Math.random() * 998999);
+            document.getElementById('seedInput').value = randomSeed;
+            showToast('Seed randomized: ' + randomSeed, 'info');
+        }
+
+        // Seed lock feature removed in favor of default sticky seeds
+
+        function loadTemplate(name, event) {
+            const templates = {
+                'game ui concept': 'Futuristic game interface with holographic elements, neon blue and purple color scheme, cyberpunk aesthetic, clean UI design, digital art, 4k',
+                'fantasy character': 'Elven warrior with glowing magical armor, intricate details, fantasy setting, dramatic lighting, character concept art, highly detailed',
+                'environment art': 'Ancient ruins in a mystical forest with glowing mushrooms, moonlit night, magical atmosphere, environment concept art, wide angle shot',
+                'logo design': 'Modern geometric logo for a tech startup, clean lines, gradient colors, professional design, vector art, minimalist',
+                'wallpaper': 'Cosmic landscape with nebula and distant galaxies, vibrant colors, space art, ultra-wide aspect ratio, 4k resolution',
+                '3d render': 'Ultra-realistic 3D render of a cute robot in a toy shop, octane render, soft lighting, depth of field, 8k resolution, raytracing',
+                'architecture': 'Modern sustainable glass villa in a forest with waterfall, cinematic architecture photography, sunset lighting, high-end design, 8k',
+                'cybernetic': 'Human-AI hybrid portrait with glowing translucent skin and internal circuitry, bioluminescent accents, hyper-realistic, futuristic, void background'
+            };
+            document.getElementById('mainPrompt').value = templates[name];
+
+            // Visual feedback
+            const chips = document.querySelectorAll('.template-chip');
+            chips.forEach(chip => chip.classList.remove('active')); // If you have an active class
+            if (event && event.currentTarget) {
+                // Highlight the clicked chip
+            }
+        }
+
+        async function enhancePrompt() {
+            const prompt = document.getElementById('mainPrompt').value;
+            if (!prompt.trim()) return showToast('Enter a prompt first', 'warning');
+
+            const btn = document.getElementById('enhanceBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enhancing...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/enhance-prompt`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+
+                if (!response.ok) throw new Error('Enhance failed');
+                const data = await response.json();
+                document.getElementById('mainPrompt').value = data.enhancedPrompt;
+                showToast('Prompt enhanced! ✨', 'success');
+            } catch (err) {
+                console.error(err);
+                showToast('Enhancement failed', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        async function generateImage(forceBySeed = false) {
+            if (isGenerating) {
+                showConfirm('Cancel current generation and start new one?', () => {
+                    if (abortController) abortController.abort();
+                    setTimeout(() => generateImage(forceBySeed), 100);
+                });
+                return;
+            }
+
+            const mainPromptInput = document.getElementById('mainPrompt');
+            let prompt = mainPromptInput.value.trim();
+
+            // Fallback for seed-based generation if prompt is empty
+            if (!prompt && forceBySeed) {
+                prompt = mainPromptInput.placeholder || "A high-fidelity cinematic masterpiece";
+                console.log('Using placeholder template for seed generation');
+            }
+
+            if (!prompt) return showToast('Please enter a prompt.', 'error');
+
+            const negativePrompt = document.getElementById('negativePrompt').value || NEGATIVE_PROMPT_DEFAULT;
+            const cfgScale = parseFloat(document.getElementById('cfgScale').value);
+            const seedVal = document.getElementById('seedInput').value;
+
+            // Seed Validation: Lowered limit to 4 for user safety preference
+            if (seedVal && seedVal.length < 4) {
+                return showToast('Custom seed should be 4+ numbers for stability', 'warning');
+            }
+
+            const seed = seedVal || null;
+
+            setLoading(true);
+            abortController = new AbortController();
+
+            const queueIndicator = document.getElementById('queueIndicator');
+            const queueCount = document.getElementById('queueCount');
+
+            if (currentBatchSize > 1) {
+                queueIndicator.style.display = 'block';
+                queueCount.textContent = currentBatchSize;
+            }
+
+            try {
+                const startTime = Date.now();
+                const dimensions = ASPECT_RATIO_MAP[currentAspectRatio];
+
+                const finalPrompt = `${STYLE_PRESETS[currentStyle]}, ${prompt}`;
+
+                const requestData = {
+                    modelId: currentModel,
+                    prompt: finalPrompt,
+                };
+
+                if (!currentModel.includes('flux')) {
+                    requestData.negative_prompt = negativePrompt;
+                    requestData.width = dimensions.width;
+                    requestData.height = dimensions.height;
+                    requestData.cfg_scale = cfgScale;
+                }
+
+                // If seed is locked and exists, use it. Otherwise, if batching, we need different seeds for each?
+                // Actually, if it's locked, we use the same. If not, generate random for each in batch.
+
+                let remaining = currentBatchSize;
+
+                // Show loading states immediately
+                if (currentBatchSize === 1) {
+                    showStageLoading(prompt);
+                }
+
+                let baseSeed = seed;
+                if (!seed) {
+                    baseSeed = 1000 + Math.floor(Math.random() * 998999);
+                    document.getElementById('seedInput').value = baseSeed;
+                }
+
+                const promises = Array.from({ length: currentBatchSize }, async (_, i) => {
+                    let instancePrompt = prompt;
+                    if (!prompt) {
+                        instancePrompt = getRandomPrompt(i);
+                    }
+
+                    const finalInstanceSeed = parseInt(baseSeed) + i;
+                    const loadingCard = addLoadingCardToGrid();
+
+                    // Simulated progress for Phase 1 (Requesting)
+                    let simProgress = 0;
+                    const simInterval = setInterval(() => {
+                        simProgress += Math.random() * 5;
+                        if (simProgress > 95) {
+                            clearInterval(simInterval);
+                        } else {
+                            const pEl = loadingCard.querySelector('.loader-percentage-sim');
+                            if (pEl) pEl.textContent = `${Math.floor(simProgress)}%`;
+                        }
+                    }, 800);
+
+                    try {
+                        const result = await generateSingleImage({ ...requestData, prompt: instancePrompt, seed: finalInstanceSeed }, abortController.signal);
+                        clearInterval(simInterval);
+
+                        remaining--;
+                        queueCount.textContent = remaining;
+                        if (remaining === 0) queueIndicator.style.display = 'none';
+
+                        const metadata = {
+                            model: currentModel,
+                            seed: result.seed,
+                            cfg: cfgScale,
+                            aspect: currentAspectRatio,
+                            style: currentStyle,
+                            time: ((Date.now() - startTime) / 1000).toFixed(1)
+                        };
+
+                        const uiPromises = [];
+                        if (i === 0) uiPromises.push(updateStageWithImage(prompt, result.url));
+                        uiPromises.push(updateGridCard(loadingCard, prompt, result.url, currentStyle, currentAspectRatio, metadata));
+
+                        // Critical: Wait for sync phase to finish before resolving this instance
+                        await Promise.all(uiPromises);
+
+                        saveToHistory(prompt, result.url, metadata);
+
+                        return result;
+                    } catch (err) {
+                        clearInterval(simInterval);
+                        loadingCard.remove();
+                        remaining--;
+                        queueCount.textContent = remaining;
+                        if (remaining === 0) queueIndicator.style.display = 'none';
+                        throw err;
+                    }
+                });
+
+                await Promise.all(promises);
+
+                updateLatency((Date.now() - startTime) / 1000);
+                updateStats();
+
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    showToast('Generation cancelled.', 'info');
+                } else {
+                    console.error(err);
+                    showToast(err.message || 'Generation failed.', 'error');
+                }
+            } finally {
+                setLoading(false);
+                abortController = null;
+                queueIndicator.style.display = 'none';
+            }
+        }
+
+        async function generateSingleImage(data, signal) {
+            const response = await fetch(`${BACKEND_URL}/api/generate`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data),
+                signal
+            });
+
+            if (!response.ok) {
+                const errData = await response.json();
+                throw new Error(errData.error || 'API Error ' + response.status);
+            }
+
+            const contentType = response.headers.get('content-type');
+            let url = '';
+            let rawData = null;
+
+            if (contentType && contentType.includes('application/json')) {
+                const json = await response.json();
+                if (json.result && json.result.image) {
+                    url = `data:image/png;base64,${json.result.image}`;
+                    rawData = json.result.image;
+                }
+            } else {
+                const blob = await response.blob();
+                url = URL.createObjectURL(blob);
+                rawData = blob;
+            }
+
+            // Proxy upload to ImgBB via backend
+            const cloudUrl = await uploadViaBackend(rawData);
+            return { url: cloudUrl || url, seed: data.seed };
+        }
+
+        async function uploadViaBackend(imageData) {
+            try {
+                let base64 = "";
+                if (imageData instanceof Blob) {
+                    base64 = await new Promise(r => {
+                        const reader = new FileReader();
+                        reader.onloadend = () => r(reader.result.split(',')[1]);
+                        reader.readAsDataURL(imageData);
+                    });
+                } else {
+                    base64 = imageData;
+                }
+
+                const response = await fetch(`${BACKEND_URL}/api/upload`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ image: base64 })
+                });
+
+                if (!response.ok) return null;
+                const result = await response.json();
+                return result.data.url;
+            } catch (err) {
+                return null;
+            }
+        }
+
+        function setLoading(loading) {
+            isGenerating = loading;
+
+            // Main Generate Button
+            const btn = document.getElementById('generateBtn');
+            btn.disabled = loading;
+            btn.innerHTML = loading ? '<div class="spinner"></div> Synthesizing...' : '<i class="fas fa-bolt"></i> Generate';
+
+            // Seed Generate Button
+            const seedBtn = document.getElementById('seedGenerateBtn');
+            if (seedBtn) {
+                seedBtn.disabled = loading;
+                seedBtn.style.opacity = loading ? '0.5' : '1';
+                seedBtn.style.cursor = loading ? 'not-allowed' : 'pointer';
+            }
+
+            // Enhance Button
+            const enhanceBtn = document.getElementById('enhanceBtn');
+            if (enhanceBtn) enhanceBtn.disabled = loading;
+        }
+
+        function showStageLoading(prompt) {
+            const stage = document.getElementById('generationStage');
+            const canvas = stage.querySelector('.stage-canvas');
+            const promptArea = document.getElementById('stagePrompt');
+
+            stage.style.display = 'block';
+            canvas.classList.add('is-loading');
+
+            // Phase 1 with Thinking percentage
+            canvas.innerHTML = `
+                <div class="stage-image-container">
+                    <div class="loader-processing">
+                        <div class="processing-ring-container">
+                            <div class="processing-ring"></div>
+                            <div class="loader-percentage" id="stageThinkingPercent">0%</div>
+                        </div>
+                        <div class="processing-text">Synthesizing...</div>
+                        <div class="loading-text" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">AI is thinking (Phase 1/2)</div>
+                    </div>
+                </div>
+            `;
+
+            if (window.stageSimInterval) clearInterval(window.stageSimInterval);
+
+            let simProgress = 0;
+            window.stageSimInterval = setInterval(() => {
+                simProgress += 2 + Math.random() * 5; // Brisk progress
+                if (simProgress > 95) {
+                    clearInterval(window.stageSimInterval);
+                } else {
+                    const el = document.getElementById('stageThinkingPercent');
+                    if (el) el.textContent = `${Math.floor(simProgress)}%`;
+                }
+            }, 400);
+
+            promptArea.textContent = `Generating: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`;
+            stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        async function updateStageWithImage(prompt, url) {
+            if (window.stageSimInterval) clearInterval(window.stageSimInterval);
+            const stage = document.getElementById('generationStage');
+            const canvas = stage.querySelector('.stage-canvas');
+
+            // Switch to Phase 2: Processing (Downloading Image)
+            canvas.innerHTML = `
+                <div class="stage-image-container">
+                    <div class="loader-processing">
+                        <div class="processing-ring-container">
+                            <div class="processing-ring"></div>
+                            <div class="loader-percentage" id="stagePercentage">0%</div>
+                        </div>
+                        <div class="processing-text">Finalizing...</div>
+                        <div class="loading-text" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">Syncing Resolution (Phase 2/2)</div>
+                    </div>
+                </div>
+            `;
+
+            try {
+                const blobUrl = await fetchWithProgress(url, (progress) => {
+                    const el = document.getElementById('stagePercentage');
+                    if (el) el.textContent = `${Math.floor(progress)}%`;
+                });
+
+                canvas.classList.remove('is-loading');
+                canvas.innerHTML = `
+                    <div class="fade-in">
+                        <img id="stageImage" src="${blobUrl}" alt="Result" onclick="openLightbox('${blobUrl}', \`${prompt.replace(/`/g, '\\`')}\`)">
+                        <div class="stage-info">
+                            <p id="stagePrompt">${prompt}</p>
+                        </div>
+                    </div>
+                `;
+                window.currentStageData = { url: blobUrl, prompt };
+            } catch (err) {
+                console.error('Stage Progress Error:', err);
+                showToast('Failed to sync full resolution', 'error');
+            }
+        }
+
+        function addLoadingCardToGrid() {
+            const grid = document.getElementById('imageGrid');
+            const card = document.createElement('div');
+            card.className = 'image-card is-loading';
+            card.innerHTML = `
+                <div class="image-placeholder">
+                    <div class="loader-processing">
+                        <div class="processing-ring-container" style="transform: scale(0.6); margin-bottom: 0;">
+                            <div class="processing-ring"></div>
+                            <div class="loader-percentage-sim">0%</div>
+                        </div>
+                        <span style="font-size: 0.8rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 10px;">Thinking...</span>
+                    </div>
+                </div>
+                <div class="image-info">
+                    <div class="skeleton" style="width: 90%; height: 12px; margin-bottom: 8px;"></div>
+                    <div class="skeleton" style="width: 40%; height: 8px;"></div>
+                </div>
+            `;
+            grid.insertBefore(card, grid.firstChild);
+            return card;
+        }
+
+        async function updateGridCard(card, prompt, url, style, aspect, metadata) {
+            const placeholder = card.querySelector('.image-placeholder');
+
+            // Switch to Phase 2 for Grid
+            placeholder.innerHTML = `
+                <div class="loader-processing">
+                    <div class="processing-ring-container" style="transform: scale(0.6); margin-bottom: 0;">
+                        <div class="processing-ring"></div>
+                        <div id="gridPercent_${metadata.seed}" class="loader-percentage">0%</div>
+                    </div>
+                    <span style="font-size: 0.8rem; font-weight: 700; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; margin-top: 10px;">Syncing...</span>
+                </div>
+            `;
+
+            try {
+                const blobUrl = await fetchWithProgress(url, (progress) => {
+                    const el = document.getElementById(`gridPercent_${metadata.seed}`);
+                    if (el) el.textContent = `${Math.floor(progress)}%`;
+                });
+
+                card.classList.remove('is-loading');
+
+                const metaStr = metadata ? `
+                    <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">
+                        Model: ${metadata.model ? metadata.model.split('/').pop() : 'N/A'} | Seed: ${metadata.seed || 'N/A'} | CFG: ${metadata.cfg || '7'}
+                    </div>
+                ` : '';
+
+                const safePrompt = (prompt || "Generated Image").replace(/`/g, '\\`').replace(/\$/g, '\\$');
+                const displayPrompt = (prompt || "No prompt available").substring(0, 50) + (prompt?.length > 50 ? '...' : '');
+
+                card.innerHTML = `
+                    <div class="fade-in">
+                        <div class="image-placeholder" onclick="openLightbox('${blobUrl}', \`${safePrompt}\`)">
+                            <img src="${blobUrl}" class="generated-image">
+                        </div>
+                        <div class="image-info">
+                            <div class="image-prompt">${displayPrompt}</div>
+                            <div class="image-meta">
+                                <span>${style} • ${aspect}</span>
+                                <span>${metadata?.time ? metadata.time + 's' : 'Just now'}</span>
+                            </div>
+                            ${metaStr}
+                            <div class="image-actions">
+                                <button class="icon-btn" onclick="saveImage(this, '${blobUrl}', \`${safePrompt}\`)"><i class="fas fa-heart"></i></button>
+                                <button class="icon-btn" onclick="downloadImage('${blobUrl}', \`${safePrompt}\`)"><i class="fas fa-download"></i></button>
+                                <button class="icon-btn" title="Re-generate" onclick="regenerate(\`${safePrompt}\`, ${JSON.stringify(metadata || {}).replace(/"/g, '&quot;')})"><i class="fas fa-sync"></i></button>
+                                <button class="icon-btn delete-btn" title="Delete" onclick="deleteImage(this, '${blobUrl}')"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error('Grid Progress Error:', err);
+                placeholder.innerHTML = `<div class="error-text">Sync Failed</div>`;
+                throw err;
+            }
+        }
+
+        function showInStage(prompt, url) {
+            updateStageWithImage(prompt, url);
+        }
+
+        function closeStage() {
+            document.getElementById('generationStage').style.display = 'none';
+            window.currentStageData = null;
+        }
+
+        async function saveStageImage() {
+            if (!window.currentStageData) return;
+            const { url, prompt } = window.currentStageData;
+            saveImage(null, url, prompt);
+        }
+
+        async function downloadStageImage() {
+            if (!window.currentStageData) return;
+            const { url, prompt } = window.currentStageData;
+            downloadImage(url, prompt);
+        }
+
+        function addImageToGrid(prompt, url, style, aspect, metadata, isInit = false) {
+            const grid = document.getElementById('imageGrid');
+            const card = document.createElement('div');
+            card.className = 'image-card';
+
+            const metaStr = metadata ? `
+                <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 5px;">
+                    Model: ${metadata.model ? metadata.model.split('/').pop() : 'N/A'} | Seed: ${metadata.seed || 'N/A'} | CFG: ${metadata.cfg || '7'}
+                </div>
+            ` : '';
+
+            const safePrompt = (prompt || "Generated Image").replace(/`/g, '\\`').replace(/\$/g, '\\$');
+            const displayPrompt = (prompt || "No prompt available").substring(0, 50) + (prompt?.length > 50 ? '...' : '');
+
+            card.innerHTML = `
+                <div class="image-placeholder" onclick="openLightbox('${url}', \`${safePrompt}\`)">
+                    <img src="${url}" class="generated-image">
+                </div>
+                <div class="image-info">
+                    <div class="image-prompt">${displayPrompt}</div>
+                    <div class="image-meta">
+                        <span>${style} • ${aspect}</span>
+                        <span>${metadata?.time ? metadata.time + 's' : 'Just now'}</span>
+                    </div>
+                    ${metaStr}
+                    <div class="image-actions">
+                        <button class="icon-btn" onclick="saveImage(this, '${url}', \`${safePrompt}\`)"><i class="fas fa-heart"></i></button>
+                        <button class="icon-btn" onclick="downloadImage('${url}', \`${safePrompt}\`)"><i class="fas fa-download"></i></button>
+                        <button class="icon-btn" title="Re-generate" onclick="regenerate(\`${safePrompt}\`, ${JSON.stringify(metadata || {}).replace(/"/g, '&quot;')})"><i class="fas fa-sync"></i></button>
+                        <button class="icon-btn delete-btn" title="Delete" onclick="deleteImage(this, '${url}')"><i class="fas fa-trash-alt"></i></button>
+                    </div>
+                </div>
+            `;
+            if (isInit) grid.appendChild(card);
+            else grid.insertBefore(card, grid.firstChild);
+        }
+
+        function regenerate(prompt, metadata) {
+            if (!metadata) return;
+            document.getElementById('mainPrompt').value = prompt;
+            document.getElementById('aiModel').value = metadata.model || currentModel;
+            document.getElementById('cfgScale').value = metadata.cfg || 7.0;
+            document.getElementById('cfgValue').textContent = metadata.cfg || '7.0';
+            document.getElementById('seedInput').value = metadata.seed || '';
+
+            currentModel = metadata.model || currentModel;
+            currentStyle = metadata.style || 'realistic';
+            currentAspectRatio = metadata.aspect || '1:1';
+
+            // Set active states in UI
+            selectStyle(currentStyle);
+            selectAspectRatio(currentAspectRatio);
+
+            showToast('Settings restored. Starting generation...', 'success');
+            setTimeout(generateImage, 600);
+        }
+
+        async function fetchWithProgress(url, onProgress) {
+            if (url.startsWith('blob:') || url.startsWith('data:')) {
+                onProgress(100);
+                return url;
+            }
+
+            // Safety Timeout: If fetch takes too long to respond, return original URL
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                console.warn('Fetch with progress timed out, falling back to direct URL');
+                controller.abort();
+            }, 8000); // 8 second timeout for the start of the fetch
+
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+                const contentLength = response.headers.get('content-length');
+                const total = parseInt(contentLength, 10);
+                let loaded = 0;
+
+                const reader = response.body.getReader();
+                const chunks = [];
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    chunks.push(value);
+                    loaded += value.length;
+
+                    if (total && !isNaN(total)) {
+                        const progress = (loaded / total) * 100;
+                        onProgress(progress);
+                    } else {
+                        onProgress(Math.min(99, (loaded / 1000000) * 100));
+                    }
+                }
+
+                const blob = new Blob(chunks);
+                return URL.createObjectURL(blob);
+            } catch (error) {
+                clearTimeout(timeoutId);
+                console.error('Fetch with progress failed or timed out:', error);
+                onProgress(100);
+                return url;
+            }
+        }
+
+        // --- INFINITE DYNAMIC PROMPTING ENGINE ---
+        const PROMPT_DICTIONARY = {
+            subjects: [
+                "a cyborg assassin", "a divine goddess", "a futuristic hypercar", "a cybernetic dragon",
+                "a celestial astronaut", "a samurai warrior", "a mythical phoenix", "a bio-mechanical predator",
+                "a floating steampunk island", "a majestic mountain landscape", "a bioluminescent underwater city",
+                "a post-apocalyptic ruin", "a quantum superhero", "a mechanical clockwork eye",
+                "a wizard in a cosmic library", "a futuristic sports bike", "a zen garden on Mars",
+                "a gothic victorian mansion", "a hidden jungle temple", "a minimalist floating villa",
+                "a neon samurai mask", "a crystal phoenix", "a holographic city", "a retro computer terminal",
+                "a majestic white wolf", "a steampunk airship", "a futuristic laboratory", "a celestial galaxy"
+            ],
+            environments: [
+                "in a rainy cyberpunk city", "reflecting on a crystal clear lake", "floating in a celestial nebula",
+                "speeding through a neon desert", "inside a giant mechanical tree", "perched on a skyscraper",
+                "underwater with glowing plants", "above the clouds at sunset", "in a field of red spider lilies",
+                "on the red soil of Mars", "swirling with elemental energy", "overgrown by nature in the city",
+                "in a retro-futuristic jazz club", "surrounded by fiber optic trees", "in a frozen crystal cave",
+                "in a forgotten desert oasis", "inside a digital mainframe", "on a floating moon base"
+            ],
+            lighting: [
+                "volumetric lighting", "aurora borealis reflections", "divine celestial glow", "neon synthwave colors",
+                "warm golden hour light", "dramatic cinematic contrast", "bioluminescent ray tracing",
+                "soft morning mist", "intense electric sparks", "ray-traced reflections", "soft dream-like glow",
+                "harsh industrial shadows", "radiant sunset hues", "magical glimmering dust", "phosphorescent energy",
+                "glowing moonlight", "intense solar flare", "shifting prism colors"
+            ],
+            styles: [
+                "hyper-realistic", "cinematic masterpiece", "unreal engine 5 render", "high-fidelity digital art",
+                "masterpiece concept art", "intricate macrophotography", "architectural photography",
+                "traditional ink painting style", "epic wide shot", "hyper-detailed 8k", "surreal magical realism",
+                "cybernetic aesthetic", "clean minimalist design", "gritty industrial style", "vibrant synthwave art",
+                "manga style illustrate", "3D octane render", "oil painting masterpiece"
+            ],
+            technical: [
+                "8k resolution", "extremely detailed", "highly intricate", "sharp focus", "professional color grading",
+                "vray render", "octane render", "dramatic composition", "rich textures", "masterpiece quality",
+                "depth of field", "ultra-wide angle", "color corrected"
+            ]
+        };
+
+        function generateDynamicPrompt() {
+            const getRand = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+            const subject = getRand(PROMPT_DICTIONARY.subjects);
+            const env = getRand(PROMPT_DICTIONARY.environments);
+            const light = getRand(PROMPT_DICTIONARY.lighting);
+            const style = getRand(PROMPT_DICTIONARY.styles);
+            const tech = getRand(PROMPT_DICTIONARY.technical);
+
+            // Constructing the masterpiece
+            return `${style} ${subject}, ${env}, ${light}, ${tech}`;
+        }
+
+        function applyRandomPrompt() {
+            const prompt = generateDynamicPrompt();
+            const input = document.getElementById('mainPrompt');
+
+            // Text scrambling effect for "Magic" feel
+            input.value = "";
+            let i = 0;
+            const interval = setInterval(() => {
+                input.value = prompt.substring(0, i) + "_";
+                i += 3;
+                if (i >= prompt.length) {
+                    clearInterval(interval);
+                    input.value = prompt;
+                }
+            }, 30);
+
+            showToast('Magic logic synthesized!', 'success');
+        }
+
+        function getRandomPrompt() {
+            return generateDynamicPrompt();
+        }
+
+        async function saveToHistory(prompt, url, metadata) {
+            const user = auth.currentUser;
+            const item = { prompt, url, style: currentStyle, aspect: currentAspectRatio, metadata, createdAt: firebase.firestore.FieldValue.serverTimestamp() };
+
+            generationHistory.unshift(item);
+            if (generationHistory.length > 50) generationHistory.pop();
+
+            if (user) {
+                try {
+                    await db.collection('history').add({ ...item, uid: user.uid });
+                } catch (err) { console.error(err); }
+            } else {
+                localStorage.setItem('generationHistory', JSON.stringify(generationHistory));
+            }
+        }
+
+        async function loadFirestoreHistory(uid) {
+            try {
+                const snapshot = await db.collection('history').where('uid', '==', uid).orderBy('createdAt', 'desc').limit(50).get();
+                const grid = document.getElementById('imageGrid');
+                grid.innerHTML = '';
+                generationHistory = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    generationHistory.push(data);
+                    addImageToGrid(data.prompt, data.url, data.style, data.aspect, data.metadata, true);
+                });
+            } catch (err) { console.error(err); }
+        }
+
+        function saveImage(btn, url, prompt) {
+            const existing = savedImages.find(i => i.url === url);
+            if (existing) return showToast('Already saved.', 'info');
+            savedImages.push({ url, prompt, timestamp: new Date().toISOString() });
+            localStorage.setItem('savedImages', JSON.stringify(savedImages));
+            updateStats();
+            showToast('Pinned!', 'success');
+        }
+
+        async function downloadImage(url, prompt) {
+            try {
+                showToast('Preparing download...', 'info');
+
+                // Use proxy to bypass CORS and ensure direct download
+                const filename = `imagera-${Date.now()}.png`;
+                const proxyUrl = `${BACKEND_URL}/api/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(filename)}`;
+
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error('Proxy download failed');
+
+                const blob = await response.blob();
+                const blobUrl = window.URL.createObjectURL(blob);
+
+                const link = document.createElement('a');
+                link.href = blobUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+
+                // Delay revocation to ensure browser has time to start the download
+                setTimeout(() => {
+                    document.body.removeChild(link);
+                    window.URL.revokeObjectURL(blobUrl);
+                }, 1000);
+
+                showToast('Download started!', 'success');
+            } catch (err) {
+                console.error('Download failed:', err);
+                // Last resort: standard navigation
+                showToast('Direct download failed. Opening link instead...', 'warning');
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                link.click();
+            }
+        }
+
+        async function deleteImage(btn, url) {
+            const isPinned = savedImages.some(i => i.url === url);
+            const msg = isPinned
+                ? 'This is a PINNED favorite! Remove it from both History and Favorites?'
+                : 'Remove this image from your history?';
+
+            window.showConfirm(msg, async () => {
+                const card = btn.closest('.image-card');
+
+                // 1. DOM Removal with animation
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9) translateY(20px)';
+                card.style.transition = 'all 0.4s ease';
+
+                setTimeout(async () => {
+                    card.remove();
+
+                    // 2. Remove from local array
+                    const index = generationHistory.findIndex(i => i.url === url);
+                    if (index !== -1) generationHistory.splice(index, 1);
+
+                    // 3. Remove from favorites if exists
+                    if (isPinned) {
+                        const favIndex = savedImages.findIndex(i => i.url === url);
+                        if (favIndex !== -1) {
+                            savedImages.splice(favIndex, 1);
+                            localStorage.setItem('savedImages', JSON.stringify(savedImages));
+                        }
+                    }
+
+                    // 4. Update Stats IMMEDIATELY
+                    updateStats();
+
+                    // 5. Persistent Removal
+                    const user = auth.currentUser;
+                    if (user) {
+                        try {
+                            const snapshot = await db.collection('history')
+                                .where('uid', '==', user.uid)
+                                .where('url', '==', url)
+                                .get();
+
+                            const batch = db.batch();
+                            snapshot.forEach(doc => batch.delete(doc.ref));
+                            await batch.commit();
+                        } catch (err) { console.error('Firestore delete failed:', err); }
+                    } else {
+                        localStorage.setItem('generationHistory', JSON.stringify(generationHistory));
+                    }
+
+                    window.showToast(isPinned ? 'Image removed from everywhere.' : 'Image removed.', 'info');
+                }, 400);
+            });
+        }
+
+        async function logout() {
+            window.showConfirm('Logout of Imagera AI?', async () => {
+                await auth.signOut();
+                localStorage.removeItem('imagera_user');
+                localStorage.removeItem('imagera_demo_mode');
+                window.location.href = 'index.html';
+            });
+        }
+
+        async function exportHistory() {
+            if (generationHistory.length === 0) return window.showToast('No assets to export.', 'error');
+
+            window.showConfirm(`Export ${generationHistory.length} assets? Your browser may ask for multi-download permission.`, async () => {
+                window.showToast(`Starting bulk export of ${generationHistory.length} items...`, 'info');
+
+                for (let i = 0; i < generationHistory.length; i++) {
+                    const item = generationHistory[i];
+                    try {
+                        const response = await fetch(item.url);
+                        const blob = await response.blob();
+                        const blobUrl = window.URL.createObjectURL(blob);
+
+                        const link = document.createElement('a');
+                        link.href = blobUrl;
+                        link.download = `imagera-export-${i}-${Date.now()}.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                        window.URL.revokeObjectURL(blobUrl);
+                        await new Promise(r => setTimeout(r, 300));
+                    } catch (err) {
+                        console.error(`Export failed for item ${i}:`, err);
+                    }
+                }
+                window.showToast('Bulk export complete!', 'success');
+            });
+        }
+
+        function clearMemory() {
+            window.showConfirm('Clear all assets?', async () => {
+                const user = auth.currentUser;
+                if (user) {
+                    try {
+                        const snapshot = await db.collection('history').where('uid', '==', user.uid).get();
+                        const batch = db.batch();
+                        snapshot.forEach(doc => batch.delete(doc.ref));
+                        await batch.commit();
+                    } catch (err) { console.error(err); }
+                }
+                generationHistory = [];
+                savedImages = []; // Clear favorites too on hard reset
+                localStorage.setItem('generationHistory', JSON.stringify([]));
+                localStorage.setItem('savedImages', JSON.stringify([]));
+                document.getElementById('imageGrid').innerHTML = '';
+                updateStats();
+                window.showToast('Memory cleared successfully.', 'success');
+            });
+        }
+
+        function updateStats() {
+            const count = document.querySelectorAll('.image-card').length;
+            document.getElementById('totalImages').textContent = count;
+            document.getElementById('totalImagesHeader').textContent = count;
+            document.getElementById('savedImages').textContent = savedImages.length;
+        }
+
+        function updateLatency(val) {
+            const str = val.toFixed(1) + 's';
+            document.getElementById('avgTime').textContent = str;
+            document.getElementById('avgTimeHeader').textContent = str;
+        }
+
+        function showHistory() { window.location.href = 'history.html'; }
+
+        function openLightbox(url, prompt) {
+            const lb = document.getElementById('lightbox');
+            document.getElementById('lightboxImg').src = url;
+            document.getElementById('lightboxPrompt').textContent = prompt;
+            lb.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+    </script>
+</body>
+
+</html>

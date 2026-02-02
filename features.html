@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Features & Tiers | Imagera-AI</title>
+    <link rel="icon" href="logo.png">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Poppins:wght@600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #060608;
+            --bg-card: rgba(22, 22, 26, 0.7);
+            --bg-card-premium: rgba(35, 20, 50, 0.8);
+            --accent-primary: #8a2be2;
+            --accent-secondary: #00f2fe;
+            --accent-gradient: linear-gradient(135deg, #8a2be2 0%, #00f2fe 100%);
+            --accent-purple-glow: rgba(138, 43, 226, 0.4);
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b8;
+            --text-muted: #626274;
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --header-height: 80px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* --- Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 4rem;
+            height: var(--header-height);
+            border-bottom: var(--glass-border);
+            background-color: rgba(6, 6, 8, 0.85);
+            backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            height: 35px;
+            filter: drop-shadow(0 0 10px var(--accent-purple-glow));
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: white;
+        }
+
+        .nav-link.active {
+            font-weight: 800;
+            border-bottom: 2px solid var(--accent-primary);
+            padding-bottom: 5px;
+        }
+
+        /* --- Content area --- */
+        .content {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, var(--text-secondary) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-header p {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto 5rem auto;
+        }
+
+        /* --- Tiers Grid --- */
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2.5rem;
+            align-items: stretch;
+        }
+
+        @media (max-width: 1024px) {
+            .tiers-grid {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+                margin: 0 auto;
+            }
+        }
+
+        .tier-card {
+            background: var(--bg-card);
+            border: var(--glass-border);
+            border-radius: 35px;
+            padding: 4rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+
+        .tier-card.pro {
+            background: var(--bg-card-premium);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 50px rgba(138, 43, 226, 0.2);
+            transform: scale(1.05);
+            z-index: 2;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            border-color: var(--accent-secondary);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .tier-card.pro:hover {
+            transform: translateY(-15px) scale(1.07);
+        }
+
+        .tier-badge {
+            position: absolute;
+            top: 25px;
+            right: -35px;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 8px 45px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            transform: rotate(45deg);
+        }
+
+        .selected-tick {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 32px;
+            height: 32px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            box-shadow: 0 0 15px var(--accent-purple-glow);
+            z-index: 5;
+        }
+
+        .tier-name {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .tier-price {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .tier-price span {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .tier-desc {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 3rem;
+        }
+
+        .benefits-list {
+            list-style: none;
+            text-align: left;
+            margin-bottom: 4rem;
+            flex-grow: 1;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.2rem;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .benefit-item i {
+            color: var(--accent-secondary);
+            font-size: 1.1rem;
+        }
+
+        .benefit-item.unavailable {
+            color: var(--text-muted);
+        }
+
+        .benefit-item.unavailable i {
+            color: var(--text-muted);
+            opacity: 0.3;
+        }
+
+        .btn {
+            padding: 1.2rem;
+            border-radius: 18px;
+            font-weight: 800;
+            font-size: 1.05rem;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            text-align: center;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .btn-ghost {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-ghost:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-secondary);
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: white;
+            box-shadow: 0 10px 25px rgba(138, 43, 226, 0.3);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 15px 35px rgba(138, 43, 226, 0.5);
+        }
+
+        .footer-note {
+            margin-top: 6rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+    </style>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <link rel="stylesheet" href="notifications.css">
+    <script src="notifications.js"></script>
+</head>
+
+<body class="animate-fade-in">
+    <header>
+        <a href="index.html" class="logo">
+            <img src="logo.png" alt="Logo" class="logo-img">
+            <span>IMAGERA-AI</span>
+        </a>
+        <nav class="nav-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="generator.html" class="nav-link">Generator</a>
+            <a href="features.html" class="nav-link active">Features</a>
+            <a href="community.html" class="nav-link">Community</a>
+            <a href="history.html" class="nav-link">History</a>
+        </nav>
+        <div id="authNav">
+            <!-- Populated via JS -->
+        </div>
+    </header>
+
+    <main class="content">
+        <div class="page-header">
+            <h1>Engine Tiers</h1>
+            <p>Choose the model that matches your creative ambition. From hyper-fast sketches to studio-grade
+                masterpieces.</p>
+        </div>
+
+        <div class="tiers-grid">
+            <!-- Free / Selected -->
+            <div class="tier-card" style="animation-delay: 0.1s; border-color: var(--accent-secondary);">
+                <div class="selected-tick">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="tier-name" style="color: var(--text-secondary);">The Synthesist</div>
+                <div class="tier-price">$0 <span>/ mo</span></div>
+                <p class="tier-desc">Perfect for hobbyists exploring the world of AI art.</p>
+                <ul class="benefits-list">
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Access to FLUX.1 Turbo Model</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Standard Latency (1-3s)</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> 50 Daily Generation Credits</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Standard Aspect Ratios (1:1, 16:9)</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Community Cloud Hosting (ImgBB)</li>
+                    <li class="benefit-item unavailable"><i class="fas fa-times-circle"></i> 4K Ultra-HD Upscaling</li>
+                    <li class="benefit-item unavailable"><i class="fas fa-times-circle"></i> Commercial Usage License
+                    </li>
+                </ul>
+                <a href="generator.html" class="btn btn-primary">Generate Now</a>
+            </div>
+
+            <!-- Pro / Premium 1 -->
+            <div class="tier-card pro" style="animation-delay: 0.2s;">
+                <div class="tier-badge">Popular</div>
+                <div class="tier-name" style="color: white;">The Creator</div>
+                <div class="tier-price">$19 <span>/ mo</span></div>
+                <p class="tier-desc">Enhanced power for digital artists and professionals.</p>
+                <ul class="benefits-list">
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Access to SDXL Studio & Phoenix</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Ultra-Low Latency (Sub-second)</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Unlimited Daily Generations</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> All Aspect Ratios + Custom Res</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Private CDN Cloud Hosting</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> AI Prompt Enhancer V2</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Full Commercial Rights</li>
+                </ul>
+                <a href="#" class="btn btn-primary">Upgrade to Creator</a>
+            </div>
+
+            <!-- Enterprise / Premium 2 -->
+            <div class="tier-card" style="animation-delay: 0.3s;">
+                <div class="tier-name" style="color: var(--accent-secondary);">The Architect</div>
+                <div class="tier-price">$99 <span>/ mo</span></div>
+                <p class="tier-desc">Enterprise-grade infrastructure for studios and teams.</p>
+                <ul class="benefits-list">
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Custom Fine-Tuned Model Node</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Instant API Access & Webhooks</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Bulk Generation Suites</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Dedicated GPU Infrastructure</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> Real-time Team Collaboration</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> 24/7 Dedicated Account Manager</li>
+                    <li class="benefit-item"><i class="fas fa-check-circle"></i> SOC2 Type II Security Compliance</li>
+                </ul>
+                <a href="#" class="btn btn-ghost">Contact Sales</a>
+            </div>
+        </div>
+
+        <p class="footer-note">All plans include standard features like negative prompts, seed control, and cfg scale
+            adjustments.</p>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const authNav = document.getElementById('authNav');
+
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    authNav.innerHTML = `
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <span style="font-weight: 600; opacity: 0.8;">${user.displayName ? user.displayName.split(' ')[0] : 'User'}</span>
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem;">${user.displayName ? user.displayName.charAt(0) : 'U'}</div>
+                            <button class="btn btn-ghost btn-sm" onclick="logout()" title="Logout" style="width: auto; padding: 0.3rem 0.5rem; display: flex; align-items: center; justify-content: center; opacity: 0.6;"><i class="fas fa-sign-out-alt"></i></button>
+                        </div>
+                    `;
+                } else {
+                    authNav.innerHTML = `
+                        <div style="display: flex; gap: 1rem;">
+                            <a href="login.html" class="btn btn-ghost" style="padding: 0.5rem 1rem; font-size: 0.8rem; width: auto;">Login</a>
+                            <a href="sign-up.html" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; width: auto;">Sign Up</a>
+                        </div>
+                    `;
+                }
+            });
+        });
+
+        async function logout() {
+            showConfirm('Logout of Imagera AI?', async () => {
+                await auth.signOut();
+                localStorage.removeItem('imagera_user');
+                localStorage.removeItem('imagera_demo_mode');
+                window.location.href = 'index.html';
+            });
+        }
+    </script>
+</body>
+
+</html>
