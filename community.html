@@ -1116,8 +1116,7 @@
                     <button class="attach-btn" title="Add Image" onclick="document.getElementById('fileInput').click()">
                         <i class="fas fa-plus"></i>
                     </button>
-                    <textarea id="messageInput" placeholder="Type your masterpiece idea..." rows="1"
-                        disabled></textarea>
+                    <textarea id="messageInput" placeholder="Joining chat..." rows="1" disabled></textarea>
                     <button id="sendBtn" class="send-btn" disabled>
                         <i class="fas fa-paper-plane"></i>
                     </button>
@@ -1197,6 +1196,13 @@
                         <div style="width: 35px; height: 35px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: 700;">${user.displayName ? user.displayName.charAt(0) : 'U'}</div>
                     </div>
                 `;
+
+                // Set initial placeholder based on permission
+                if (user.email !== 'panthpatelp5@gmail.com') {
+                    messageInput.placeholder = "Read-only Mode (Admin Only)";
+                } else {
+                    messageInput.placeholder = "Type your masterpiece idea...";
+                }
             } else {
                 // Redirect if not signed in
                 window.location.href = 'login.html';
@@ -1208,8 +1214,19 @@
             if (!username) return showToast('Please enter a nickname', 'warning');
 
             welcomeOverlay.style.display = 'none';
-            messageInput.disabled = false;
-            sendBtn.disabled = false;
+
+            // Only enable input for authorized user
+            if (currentUser && currentUser.email === 'panthpatelp5@gmail.com') {
+                messageInput.disabled = false;
+                sendBtn.disabled = false;
+                messageInput.placeholder = "Type your masterpiece idea...";
+            } else {
+                messageInput.disabled = true;
+                sendBtn.disabled = true;
+                messageInput.placeholder = "Read-only Mode (Admin Only)";
+                showToast('You are in read-only mode', 'info');
+            }
+
             roomStatus.textContent = 'Active Hub';
 
             // Add self to list immediately
@@ -1322,6 +1339,12 @@
             if (!message && selectedFiles.length === 0) return;
             if (!currentUser) return;
 
+            // Final check of email
+            if (currentUser.email !== 'panthpatelp5@gmail.com') {
+                showToast('You are not allowed to send messages', 'error');
+                return;
+            }
+
             const sendBtnContent = sendBtn.innerHTML;
             sendBtn.disabled = true;
             sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -1367,7 +1390,10 @@
                 await db.collection('chat_messages').add(chatData);
 
                 // Emit via Socket.io for real-time
-                socket.emit('send-message', chatData);
+                socket.emit('send-message', {
+                    ...chatData,
+                    email: currentUser.email // Send email for server-side verification
+                });
 
                 // Reset state
                 messageInput.value = '';
