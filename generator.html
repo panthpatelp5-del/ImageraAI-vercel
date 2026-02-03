@@ -1352,6 +1352,14 @@
                             <i class="fas fa-cube style-icon"></i>
                             <div>3D Render</div>
                         </div>
+                        <div class="style-preset" onclick="selectStyle('logo', event)">
+                            <i class="fas fa-pen-nib style-icon"></i>
+                            <div>Logo</div>
+                        </div>
+                        <div class="style-preset" onclick="selectStyle('banner', event)">
+                            <i class="fas fa-image style-icon"></i>
+                            <div>Banner</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1581,7 +1589,9 @@
             realistic: "photorealistic, ultra detailed, DSLR, 8k, high definition",
             anime: "anime style, studio ghibli, cel shading, vibrant colors, detailed illustration",
             digital: "digital art, concept art, trending on artstation, sharp focus, vivid colors",
-            '3d': "3d render, octane render, unreal engine 5, raytracing, soft lighting"
+            '3d': "3d render, octane render, unreal engine 5, raytracing, soft lighting",
+            logo: "vector art logo, minimalist, clean lines, professional branding, flat design, high contrast, white background or transparent style, professional typography, graphic design element",
+            banner: "wide banner, cinematic landscape, high resolution wallpaper, billboard design, youtube banner style, panoramic view, high detail, balanced composition"
         };
 
         const NEGATIVE_PROMPT_DEFAULT = "blurry, low quality, deformed hands, extra fingers, watermark, text, out of frame, low resolution, grain, ugly";
@@ -1670,12 +1680,28 @@
         function selectStyle(style, event) {
             currentStyle = style;
             document.querySelectorAll('.style-preset').forEach(p => p.classList.remove('active'));
+
+            let target;
             if (event && event.currentTarget) {
-                event.currentTarget.classList.add('active');
+                target = event.currentTarget;
             } else {
                 document.querySelectorAll('.style-preset').forEach(p => {
-                    if (p.textContent.trim().toLowerCase() === style.toLowerCase()) p.classList.add('active');
+                    const label = p.querySelector('div')?.textContent.trim().toLowerCase() || p.textContent.trim().toLowerCase();
+                    if (label === style.toLowerCase()) target = p;
                 });
+            }
+
+            if (target) {
+                target.classList.add('active');
+            }
+
+            // Automatic Aspect Ratio switching for Logos and Banners
+            if (style === 'logo') {
+                selectAspectRatio('1:1');
+                showToast('Switched to Square aspect ratio for Logo', 'info');
+            } else if (style === 'banner') {
+                selectAspectRatio('16:9');
+                showToast('Switched to Cinema aspect ratio for Banner', 'info');
             }
         }
 
@@ -1816,10 +1842,11 @@
                     prompt: finalPrompt,
                 };
 
+                requestData.width = dimensions.width;
+                requestData.height = dimensions.height;
+
                 if (!currentModel.includes('flux')) {
                     requestData.negative_prompt = negativePrompt;
-                    requestData.width = dimensions.width;
-                    requestData.height = dimensions.height;
                     requestData.cfg_scale = cfgScale;
                 }
 
@@ -2001,12 +2028,12 @@
         function showStageLoading(prompt) {
             const stage = document.getElementById('generationStage');
             const canvas = stage.querySelector('.stage-canvas');
-            const promptArea = document.getElementById('stagePrompt');
 
             stage.style.display = 'block';
             canvas.classList.add('is-loading');
 
             // Phase 1 with Thinking percentage
+            // We include the stage-info and stagePrompt here so it's not "null" when we try to update it
             canvas.innerHTML = `
                 <div class="stage-image-container">
                     <div class="loader-processing">
@@ -2017,6 +2044,9 @@
                         <div class="processing-text">Synthesizing...</div>
                         <div class="loading-text" style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">AI is thinking (Phase 1/2)</div>
                     </div>
+                </div>
+                <div class="stage-info">
+                    <p id="stagePrompt"></p>
                 </div>
             `;
 
@@ -2033,7 +2063,11 @@
                 }
             }, 400);
 
-            promptArea.textContent = `Generating: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`;
+            // Re-select the prompt area AFTER innerHTML injection
+            const promptArea = document.getElementById('stagePrompt');
+            if (promptArea) {
+                promptArea.textContent = `Generating: ${prompt.substring(0, 100)}${prompt.length > 100 ? '...' : ''}`;
+            }
             stage.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
 
@@ -2064,7 +2098,7 @@
 
                 canvas.classList.remove('is-loading');
                 canvas.innerHTML = `
-                    <div class="fade-in">
+                    <div class="animate-fade-in" style="display: flex; flex-direction: column; align-items: center; width: 100%; gap: 2.5rem;">
                         <img id="stageImage" src="${blobUrl}" alt="Result" onclick="openLightbox('${blobUrl}', \`${prompt.replace(/`/g, '\\`')}\`)">
                         <div class="stage-info">
                             <p id="stagePrompt">${prompt}</p>
